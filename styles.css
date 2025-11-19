@@ -1,0 +1,74 @@
+.revealed {
+  background-color: white;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: #1a1a1a;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding-top: 40px;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+/* Top display (timer + mines) */
+.top-panel {
+  background: #333;
+  border: 3px solid #555;
+  padding: 10px 20px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  font-size: 22px;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 2px;
+  background: #444;
+  padding: 4px;
+  border: 3px solid #555;
+}
+
+.cell {
+  background: #777;
+  border: 2px solid #999;
+  box-sizing: border-box;
+  user-select: none;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #111;
+  font-weight: bold;
+}
+
+.cell:hover {
+  opacity: 60%;
+}
+.bomb {
+  background-color: red;
+}
+
+.flag {
+  background-color: cyan;
+}
+button {
+  width: 80px;
+  height: 30px;
+  background-color: #777;
+  color: white;
+}
