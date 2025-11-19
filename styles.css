@@ -72,3 +72,6 @@ button {
   background-color: #777;
   color: white;
 }
+.hidden {
+  display: none;
+}

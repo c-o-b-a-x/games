@@ -16,6 +16,7 @@
         <button id="hard">Hard</button>
         <button id="impossible">Impossible</button>
       </div>
+
       <div class="top-panel">
         <div id="mines">Mines: 10</div>
         <div id="timer">000</div>
@@ -23,12 +24,14 @@
       </div>
 
       <div class="grid"></div>
+
+      <button id="start">Start</button>
       <button id="reset">Reset</button>
     </div>
   </body>
-  <script>
-    // BTNS
 
+  <script>
+    const start = document.getElementById("start");
     const easy = document.getElementById("easy");
     const medium = document.getElementById("medium");
     const hard = document.getElementById("hard");
@@ -37,6 +40,8 @@
     const flags = document.getElementById("flags");
     const mines = document.getElementById("mines");
     const grid = document.querySelector(".grid");
+    const timer = document.getElementById("timer");
+
     let repeat = 75;
     let size = 10;
     let time = size * 10;
@@ -44,159 +49,30 @@
     let empty = size * size - bomb_count;
     let flag_count = bomb_count;
     let timerInterval;
-
-    console.log(flag_count, bomb_count);
-    grid.style.gridTemplateColumns = `repeat(${size}, ${repeat}px)`;
-    grid.style.gridTemplateRows = `repeat(${size}, ${repeat}px)`;
-    mines.innerText = `Mines:${bomb_count}`;
-    flags.innerText = `Flags:${flag_count}`;
     let bombs = [];
-    while (bombs.length < bomb_count) {
-      let num = Math.floor(Math.random() * (size * size));
-      if (!bombs.includes(num)) bombs.push(num);
-    }
-    const cells = [];
-    for (let i = 0; i < size; i++) {
-      cells[i] = [];
-    }
+    let cells = [];
 
-    for (let i = 0; i < size * size; i++) {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-
-      const row = Math.floor(i / size);
-      const col = i % size;
-
-      if (bombs.includes(i)) cell.dataset.bomb = "true";
-
-      cells[row][col] = cell;
-
-      cell.addEventListener("click", () => revealCell(row, col));
-      cell.addEventListener("contextmenu", () => {
-        flag_place(row, col);
-      });
-      grid.appendChild(cell);
-    }
-
-    for (let r = 0; r < size; r++) {
-      for (let c = 0; c < size; c++) {
-        if (cells[r][c].dataset.bomb === "true") continue;
-
-        let count = 0;
-        for (let dr = -1; dr <= 1; dr++) {
-          for (let dc = -1; dc <= 1; dc++) {
-            if (dr === 0 && dc === 0) continue;
-            let nr = r + dr;
-            let nc = c + dc;
-            if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
-              if (cells[nr][nc].dataset.bomb === "true") count++;
-            }
-          }
-        }
-        cells[r][c].dataset.count = count;
-      }
-    }
-    function flag_place(row, col) {
-      const cell = cells[row][col];
-      if (flag_count <= 0) return;
-      if (cell.classList.contains("revealed")) return;
-      if (cell.classList.contains("flag")) return;
-      cell.classList.add("flag");
-      flag_count -= 1;
-      flags.innerText = `Flags:${flag_count}`;
-    }
-
-    function revealCell(r, c) {
-      console.log(empty);
-      const cell = cells[r][c];
-      if (cell.classList.contains("revealed")) return;
-      empty -= 1;
-      cell.classList.add("revealed");
-      cell.style.backgroundColor = "white";
-      cell.removeEventListener("click", () => revealCell(row, col));
-      if (cell.dataset.bomb === "true") {
-        cell.textContent = "💣";
-        cell.style.backgroundColor = "red";
-
-        alert("Boom! Game Over");
-        clearInterval(timerInterval);
-
-        revealAllBombs();
-        return;
-      }
-      if (empty === 0) {
-        alert("You've Won");
-        clearInterval(timerInterval);
-      }
-
-      const count = parseInt(cell.dataset.count);
-      if (count > 0) {
-        cell.textContent = count;
-      } else {
-        for (let dr = -1; dr <= 1; dr++) {
-          for (let dc = -1; dc <= 1; dc++) {
-            if (dr === 0 && dc === 0) continue;
-            const nr = r + dr;
-            const nc = c + dc;
-            if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
-              revealCell(nr, nc);
-            }
-          }
-        }
-      }
-    }
-    grid.addEventListener("contextmenu", (event) => event.preventDefault());
-
-    function revealAllBombs() {
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const cell = cells[r][c];
-          cell.classList.add("revealed");
-
-          if (cell.dataset.bomb === "true") {
-            cell.style.backgroundColor = "red";
-            cell.textContent = "💣";
-          }
-        }
-      }
-    }
-    function timeout() {
-      if (time === 0) {
-        revealAllBombs();
-        alert("Game Over You ran out of time");
-        time = -1;
-        clearInterval(timerInterval);
-        return;
-      }
-      time -= 1;
-      timer.innerText = `time remaining:${time}`;
-    }
-
-    timerInterval = setInterval(timeout, 1000);
-
-    document.getElementById("reset").addEventListener("click", resetGame);
-
-    function resetGame() {
+    function startGame() {
+      grid.innerHTML = "";
       bomb_count = Math.round((size * size) / 10);
       empty = size * size - bomb_count;
       flag_count = bomb_count;
+      time = size * 10;
 
       mines.innerText = `Mines:${bomb_count}`;
       flags.innerText = `Flags:${flag_count}`;
-      timer.innerText = `time remaining:${time}`;
+      timer.innerText = `Time:${time}`;
 
-      grid.innerHTML = "";
-
-      time = size * 5;
       grid.style.gridTemplateColumns = `repeat(${size}, ${repeat}px)`;
       grid.style.gridTemplateRows = `repeat(${size}, ${repeat}px)`;
-      clearInterval(timerInterval);
 
       bombs = [];
       while (bombs.length < bomb_count) {
         let num = Math.floor(Math.random() * (size * size));
         if (!bombs.includes(num)) bombs.push(num);
       }
+
+      cells = [];
       for (let i = 0; i < size; i++) cells[i] = [];
 
       for (let i = 0; i < size * size; i++) {
@@ -224,8 +100,8 @@
           for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
               if (dr === 0 && dc === 0) continue;
-              let nr = r + dr;
-              let nc = c + dc;
+              let nr = r + dr,
+                nc = c + dc;
               if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
                 if (cells[nr][nc].dataset.bomb === "true") count++;
               }
@@ -235,43 +111,112 @@
         }
       }
 
+      clearInterval(timerInterval);
       timerInterval = setInterval(timeout, 1000);
     }
+
+    function flag_place(row, col) {
+      const cell = cells[row][col];
+      if (flag_count <= 0) return;
+      if (cell.classList.contains("revealed")) return;
+      if (cell.classList.contains("flag")) return;
+      cell.classList.add("flag");
+      flag_count -= 1;
+      flags.innerText = `Flags:${flag_count}`;
+    }
+
+    function revealCell(r, c) {
+      const cell = cells[r][c];
+      if (cell.classList.contains("revealed")) return;
+      empty -= 1;
+      cell.classList.add("revealed");
+      cell.style.backgroundColor = "white";
+
+      if (cell.dataset.bomb === "true") {
+        cell.textContent = "💣";
+        cell.style.backgroundColor = "red";
+        alert("Boom! Game Over");
+        clearInterval(timerInterval);
+        revealAllBombs();
+        return;
+      }
+
+      if (empty === 0) {
+        alert("You've Won");
+        clearInterval(timerInterval);
+      }
+
+      const count = parseInt(cell.dataset.count);
+      if (count > 0) {
+        cell.textContent = count;
+      } else {
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = r + dr,
+              nc = c + dc;
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
+              revealCell(nr, nc);
+            }
+          }
+        }
+      }
+    }
+
+    grid.addEventListener("contextmenu", (event) => event.preventDefault());
+
+    function revealAllBombs() {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cell = cells[r][c];
+          cell.classList.add("revealed");
+          if (cell.dataset.bomb === "true") {
+            cell.style.backgroundColor = "red";
+            cell.textContent = "💣";
+          }
+        }
+      }
+    }
+
+    function timeout() {
+      if (time === 0) {
+        revealAllBombs();
+        alert("Game Over You ran out of time");
+        clearInterval(timerInterval);
+        return;
+      }
+      time -= 1;
+      timer.innerText = `Time:${time}`;
+    }
+
+    document.getElementById("reset").addEventListener("click", startGame);
+
     function Easy() {
       repeat = 75;
       size = 10;
-      resetGame();
+      startGame();
     }
     function Medium() {
       repeat = 50;
       size = 15;
-      resetGame();
+      startGame();
     }
     function Hard() {
       repeat = 40;
       size = 20;
-      resetGame();
+      startGame();
     }
     function Impossible() {
       repeat = 25;
       size = 30;
-      resetGame();
+      startGame();
     }
 
     easy.addEventListener("click", Easy);
     medium.addEventListener("click", Medium);
     hard.addEventListener("click", Hard);
     impossible.addEventListener("click", Impossible);
+
+    start.addEventListener("click", startGame);
   </script>
 </html>
-
-<!-- TO DO
-  Add Different Difficulties
-  Start btn rather then start on default 
-
-  Easy-- 10x10
-  Medium-- 15x15
-  Hard-20x20
-  Impossible-30x30 
-
--->
