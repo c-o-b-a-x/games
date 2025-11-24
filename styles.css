@@ -100,7 +100,7 @@ button {
   width: 40px;
   height: 40px;
   transition: transform 0.2s;
-  filter: invert(100%) brightness(200%); /* Makes the logo white */
+  filter: invert(100%) brightness(200%);
 }
 
 .github-link img:hover {

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Blackjack — Visual Template (No JS)</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0b0f19;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+      .table {
+        width: 100%;
+        max-width: 1000px;
+        background: #0f1724;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 0;
+        font-weight: 600;
+      }
+
+      .hand {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 25px 0;
+      }
+
+      .hand img {
+        width: 90px;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 25px;
+      }
+
+      button {
+        padding: 12px 26px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      #hit {
+        background: #16a34a;
+        color: #fff;
+      }
+      #stand {
+        background: #dc2626;
+        color: #fff;
+      }
+      #deal {
+        background: #2563eb;
+        color: #fff;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 35px;
+        color: #8fa3c8;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="table">
+      <h1>Blackjack</h1>
+
+      <!-- Dealer Hand -->
+      <h2 style="text-align: center">Dealer</h2>
+      <div class="hand" id="dealer-hand">
+        <!-- Replace these with your deck image paths -->
+        <img id="d1" src="cards/back.png" alt="Hidden card" />
+        <img id="d2" src="cards/back.png" alt="Dealer card" />
+      </div>
+
+      <!-- Player Hand -->
+      <h2 style="text-align: center">You</h2>
+      <div class="hand" id="player-hand">
+        <img id="p1" src="cards/back.png" alt="Player card" />
+        <img id="p2" src="cards/back.png" alt="Player card" />
+      </div>
+
+      <div class="controls">
+        <button id="deal">Deal</button>
+        <button class="hidden" id="hit">Hit</button>
+        <button class="hidden" id="stand">Stand</button>
+      </div>
+
+      <footer></footer>
+    </div>
+  </body>
+
+  <script>
+    let card;
+    let inital1;
+    let inital2;
+    let dealer1;
+    let dealer2;
+    let player_value = [];
+    let dealer_value = [];
+    let symbols = ["s", "c", "d", "h"];
+    let values = ["2", "3", "4", "5", "6", "7", "8", "9", "j", "q", "k", "a"];
+    const hit_btn = document.getElementById("hit");
+    const deal_btn = document.getElementById("deal");
+    const stand = document.getElementById("stand");
+    const player = document.getElementById("player-hand");
+    const playerc1 = document.getElementById("p1");
+    const playerc2 = document.getElementById("p2");
+    hit_btn.onclick = () => hitFunction(player_value, "player-hand");
+    stand.onclick = () => dealer_turn();
+
+    deal_btn.onclick = deal;
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    function hitFunction(value_list, hand_id) {
+      let num = rand(0, values.length - 1);
+      let v = values[num];
+      let card = v + symbols[rand(0, 3)];
+
+      value_list.push(v);
+
+      document.getElementById(hand_id).innerHTML += `
+    <img src="cards/${card}.png">
+  `;
+
+      console.log("Score:", getScore(value_list));
+    }
+
+    function deal() {
+      let sum = 0;
+
+      document.getElementById("player-hand").innerHTML = `
+       <img id="p1" src="cards/back.png" alt="Player card" />
+       <img id="p2" src="cards/back.png" alt="Player card" />
+    `;
+      document.getElementById("dealer-hand").innerHTML = `
+       <img id="d1" src="cards/back.png" alt="Dealer card" />
+       <img id="d2" src="cards/back.png" alt="Dealer card" />
+    `;
+      const playerc1 = document.getElementById("p1");
+      const playerc2 = document.getElementById("p2");
+
+      player_value = [];
+
+      let num1 = rand(0, values.length - 1);
+      let num2 = rand(0, values.length - 1);
+
+      let v1 = values[num1];
+      let v2 = values[num2];
+
+      let card1 = v1 + symbols[rand(0, 3)];
+      let card2 = v2 + symbols[rand(0, 3)];
+
+      player_value.push(v1, v2);
+
+      playerc1.src = `cards/${card1}.png`;
+      playerc2.src = `cards/${card2}.png`;
+    }
+    function getScore(list) {
+      let sum = 0;
+      let aces = 0;
+
+      list.forEach((v) => {
+        if (!isNaN(v)) {
+          sum += parseInt(v);
+        } else if (v === "j" || v === "q" || v === "k") {
+          sum += 10;
+        } else if (v === "a") {
+          sum += 11;
+          aces++;
+        }
+      });
+
+      while (sum > 21 && aces > 0) {
+        sum -= 10;
+        aces--;
+      }
+
+      return sum;
+    }
+
+    function dealer_turn() {
+      dealer_value = [];
+      document.getElementById("dealer-hand").innerHTML = "";
+
+      drawDealerCard();
+      drawDealerCard();
+
+      setTimeout(dealerHit, 1000);
+    }
+
+    function dealerHit() {
+      let dealerScore = getScore(dealer_value);
+      let playerScore = getScore(player_value);
+
+      if (dealerScore < 17) {
+        drawDealerCard();
+        setTimeout(dealerHit, 1000);
+      } else {
+        if (dealerScore > 21) {
+          alert("Dealer busts! You win!");
+        } else if (dealerScore > playerScore) {
+          alert("Dealer wins!");
+        } else if (dealerScore < playerScore) {
+          alert("You win!");
+        } else {
+          alert("Push (tie)");
+        }
+      }
+    }
+
+    function drawDealerCard() {
+      let num = rand(0, values.length - 1);
+      let v = values[num];
+      dealer_value.push(v);
+
+      let card = v + symbols[rand(0, 3)];
+
+      document.getElementById(
+        "dealer-hand"
+      ).innerHTML += `<img src="cards/${card}.png">`;
+    }
+  </script>
+</html>
